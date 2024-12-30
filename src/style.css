@@ -1,3 +1,6 @@
 body {
-	font-family: "Geist Mono";
+	margin: 0;
+	color: white;
+	font-family: "Geist Mono", "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+	cursor: pointer;
 }
