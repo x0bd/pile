@@ -4,3 +4,43 @@ body {
 	font-family: "Geist Mono", "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
 	cursor: pointer;
 }
+
+#instructions {
+	display: none;
+}
+
+#results,
+body:hover #instructions {
+	position: absolute;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	height: 100%;
+	width: 100%;
+	background-color: rgba(20, 20, 20, 0.75);
+}
+
+a:visited {
+	color: inherit;
+}
+
+#results {
+	display: none;
+	cursor: default;
+}
+
+#results .content,
+#instructions .content {
+	max-width: 300px;
+	padding: 50px;
+	border-radius: 20px;
+}
+
+#score {
+	position: absolute;
+	color: #fff;
+	font-size: 3em;
+	font-weight: bold;
+	top: 30px;
+	right: 30px;
+}
