@@ -130,6 +130,49 @@ const start = () => {
 	}
 };
 
+const update = (time) => {
+	if (lastTime) {
+		const timePassed = time - lastTime;
+		const speed = 0.008;
+
+		const topLayer = pile[pile.length - 1];
+		const previousLayer = pile[pile.length - 2];
+
+		// IMPORTANT MECHANIC HERE
+		const boxShouldMove =
+			!gameEnded &&
+			(!autopilot ||
+				(autopilot &&
+					topLayer.threejs.position[topLayer.direction] <
+						previousLayer.threejs.position[topLayer.direction] +
+							robotPrecision));
+
+		if (boxShouldMove) {
+			topLayer.threejs.position[topLayer.direction] += speed * timePassed;
+			topLayer.cannonjs.position[topLayer.direction] +=
+				speed * timePassed;
+
+			// If the box falls beyond the screen then it should fall
+			if (topLayer.threejs.position[topLayer.direction] > 10) {
+				miss();
+			}
+		} else {
+			if (autopilot) {
+				CoreGameLoop();
+				setRobotPrecision();
+			}
+		}
+
+		if (camera.position.y < boxHeight * (pile.length - 2) + 4) {
+			camera.position.y += speed * timePassed;
+		}
+
+		updatePhysics(timePassed);
+		renderer.render(scene, camera);
+	}
+	lastTime = time;
+};
+
 const miss = () => {
 	const topLayer = pile[pile.length - 1];
 
@@ -215,50 +258,8 @@ window.addEventListener("keydown", (e) => {
 });
 
 // Update is called 60fps etc
-const update = (time) => {
-	if (lastTime) {
-		const timePassed = time - lastTime;
-		const speed = 0.008;
 
-		const topLayer = pile[pile.length - 1];
-		const previousLayer = pile[pile.length - 2];
-
-		// IMPORTANT MECHANIC HERE
-		const boxShouldMove =
-			!gameEnded &&
-			(!autopilot ||
-				(autopilot &&
-					topLayer.threejs.position[topLayer.direction] <
-						previousLayer.threejs.position[topLayer.direction] +
-							robotPrecision));
-
-		if (boxShouldMove) {
-			topLayer.threejs.position[topLayer.direction] += speed * timePassed;
-			topLayer.cannonjs.position[topLayer.direction] +=
-				speed * timePassed;
-
-			// If the box falls beyond the screen then it should fall
-			if (topLayer.threejs.position[topLayer.direction] > 10) {
-				miss();
-			}
-		} else {
-			if (autopilot) {
-				CoreGameLoop();
-				setRobotPrecision();
-			}
-		}
-
-		if (camera.position.y < boxHeight * (pile.length - 2) + 4) {
-			camera.position.y += speed * timePassed;
-		}
-
-		updatePhysics(timePassed);
-		renderer.render(scene, camera);
-	}
-	lastTime = time;
-};
-
-const updatePhysics = () => {
+const updatePhysics = (timePassed) => {
 	world.step(timePassed / 1000);
 
 	overhangs.forEach((element) => {
