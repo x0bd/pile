@@ -233,8 +233,38 @@ const update = (time) => {
 							robotPrecision));
 
 		if (boxShouldMove) {
+			topLayer.threejs.position[topLayer.direction] += speed * timePassed;
+			topLayer.cannonjs.position[topLayer.direction] +=
+				speed * timePassed;
+
+			// If the box falls beyond the screen then it should fall
+			if (topLayer.threejs.position[topLayer.direction] > 10) {
+				miss();
+			}
+		} else {
+			if (autopilot) {
+				CoreGameLoop();
+				setRobotPrecision();
+			}
 		}
+
+		if (camera.position.y < boxHeight * (pile.length - 2) + 4) {
+			camera.position.y += speed * timePassed;
+		}
+
+		updatePhysics(timePassed);
+		renderer.render(scene, camera);
 	}
+	lastTime = time;
+};
+
+const updatePhysics = () => {
+	world.step(timePassed / 1000);
+
+	overhangs.forEach((element) => {
+		element.threejs.position.copy(element.cannonjs.position);
+		element.threejs.quaternion.copy(element.cannonjs.quaternion);
+	});
 };
 
 const awake = () => {
@@ -292,5 +322,18 @@ const awake = () => {
 	renderer.setAnimationLoop(update);
 	document.body.appendChild(renderer.domElement);
 };
+
+window.addEventListener("resize", () => {
+	const aspectRatio = window.innerWidth / window.innerHeight;
+	const width = 10;
+	const height = width / aspectRatio;
+
+	camera.top = height / 2;
+	camera.bottom = height / -2;
+
+	// Reset Renderer
+	renderer.setSize(window.innerWidth, window.innerHeight);
+	renderer.render(scene, camera);
+});
 
 awake();
