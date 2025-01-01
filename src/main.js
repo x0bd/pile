@@ -1,6 +1,5 @@
 import * as CANNON from "cannon";
 import * as THREE from "three";
-import { stack } from "three/tsl";
 
 window.focus();
 
@@ -31,8 +30,6 @@ const addLayer = (x, z, width, depth, direction) => {
 	layer.direction = direction;
 	pile.push(layer);
 };
-
-// Init function
 
 const addOverhang = (x, z, width, depth) => {
 	const y = boxHeight * (pile.length - 1);
@@ -297,7 +294,7 @@ const awake = () => {
 		100
 	);
 
-	camera.position.set(0, 0, 0);
+	camera.position.set(4, 4, 4);
 	camera.lookAt(0, 0, 0);
 
 	// Scene
