@@ -1,56 +1,151 @@
-import * as CANNON from "cannon";
-import * as THREE from "three";
+// Uses Cannon.js and Three.js, these models MUST kept in sync
 
-window.focus();
+import * as THREE from "three";
+import * as CANNON from "cannon";
+
+window.focus(); // Capture keys right away (by default focus is on editor)
 
 let camera, scene, renderer;
 let world;
 let lastTime;
-let pile;
+let stack;
 let overhangs;
 const boxHeight = 1;
 const originalBoxSize = 3;
 let autopilot;
 let gameEnded;
-let robotPrecision; // Determines the precision on autopilot
+let robotPrecision; // Determines how precise the game is on autopilot
 
-// Capture DOM Elements
 const scoreElement = document.getElementById("score");
-const instructionElement = document.getElementById("instructions");
+const instructionsElement = document.getElementById("instructions");
 const resultsElement = document.getElementById("results");
 
-// Robot Precision
-const setRobotPrecision = () => {
-	robotPrecision = Math.random() * 1 - 0.5;
-};
+awake();
 
-const addLayer = (x, z, width, depth, direction) => {
-	const y = boxHeight * pile.length;
+// Determines how precise the game is on autopilot
+function setRobotPrecision() {
+	robotPrecision = Math.random() * 1 - 0.5;
+}
+
+function awake() {
+	autopilot = true;
+	gameEnded = false;
+	lastTime = 0;
+	stack = [];
+	overhangs = [];
+	setRobotPrecision();
+
+	// Initialize CannonJS
+	world = new CANNON.World();
+	world.gravity.set(0, -10, 0); // Gravity pulls things down
+	world.broadphase = new CANNON.NaiveBroadphase();
+	world.solver.iterations = 40;
+
+	// Initialize ThreeJs
+	const aspect = window.innerWidth / window.innerHeight;
+	const width = 10;
+	const height = width / aspect;
+
+	// Orthogonal Camera Yay!!!
+	camera = new THREE.OrthographicCamera(
+		width / -2,
+		width / 2,
+		height / 2,
+		height / -2,
+		0,
+		100
+	);
+
+	camera.position.set(4, 4, 4);
+	camera.lookAt(0, 0, 0);
+
+	scene = new THREE.Scene();
+
+	// Foundational Layer
+	addLayer(0, 0, originalBoxSize, originalBoxSize);
+
+	// First layer
+	addLayer(-10, 0, originalBoxSize, originalBoxSize, "x");
+
+	// Set up lights
+	const ambientLight = new THREE.AmbientLight(0xffffff, 2);
+	scene.add(ambientLight);
+
+	const dirLight = new THREE.DirectionalLight(0xffffff, 1.3);
+	dirLight.position.set(10, 20, 0);
+	scene.add(dirLight);
+
+	// Set up renderer
+	renderer = new THREE.WebGLRenderer({ antialias: true });
+	renderer.setSize(window.innerWidth, window.innerHeight);
+	renderer.setAnimationLoop(update);
+	document.body.appendChild(renderer.domElement);
+}
+
+function start() {
+	autopilot = false;
+	gameEnded = false;
+	lastTime = 0;
+	stack = [];
+	overhangs = [];
+
+	if (instructionsElement) instructionsElement.style.display = "none";
+	if (resultsElement) resultsElement.style.display = "none";
+	if (scoreElement) scoreElement.innerText = 0;
+
+	// Remove Objects and Mesh from the world and scene respectively
+	if (world) {
+		while (world.bodies.length > 0) {
+			world.remove(world.bodies[0]);
+		}
+	}
+
+	if (scene) {
+		while (scene.children.find((c) => c.type == "Mesh")) {
+			const mesh = scene.children.find((c) => c.type == "Mesh");
+			scene.remove(mesh);
+		}
+
+		// Foundational Layer
+		addLayer(0, 0, originalBoxSize, originalBoxSize);
+
+		// First layer
+		addLayer(-10, 0, originalBoxSize, originalBoxSize, "x");
+	}
+
+	if (camera) {
+		camera.position.set(4, 4, 4);
+		camera.lookAt(0, 0, 0);
+	}
+}
+
+function addLayer(x, z, width, depth, direction) {
+	const y = boxHeight * stack.length; // Add the new box one layer higher
 	const layer = generateBox(x, y, z, width, depth, false);
 	layer.direction = direction;
-	pile.push(layer);
-};
+	stack.push(layer);
+}
 
-const addOverhang = (x, z, width, depth) => {
-	const y = boxHeight * (pile.length - 1);
+function addOverhang(x, z, width, depth) {
+	const y = boxHeight * (stack.length - 1); // Add the new box one the same layer
 	const overhang = generateBox(x, y, z, width, depth, true);
 	overhangs.push(overhang);
-};
+}
 
-const generateBox = (x, y, z, width, depth, falls) => {
-	// Three.js Objects
+function generateBox(x, y, z, width, depth, falls) {
+	// ThreeJS
 	const geometry = new THREE.BoxGeometry(width, boxHeight, depth);
-	const color = new THREE.Color(`hsl(${30 + pile.length * 4}, 100%, 50%)`);
+	const color = new THREE.Color(`hsl(${30 + stack.length * 4}, 100%, 50%)`);
 	const material = new THREE.MeshLambertMaterial({ color });
 	const mesh = new THREE.Mesh(geometry, material);
 	mesh.position.set(x, y, z);
 	scene.add(mesh);
 
-	// Cannon.js Objects
+	// CannonJS
 	const shape = new CANNON.Box(
 		new CANNON.Vec3(width / 2, boxHeight / 2, depth / 2)
 	);
-	let mass = falls ? 5 : 0; // Only only have mass if it can fall
+	let mass = falls ? 5 : 0; //
 	mass *= width / originalBoxSize;
 	mass *= depth / originalBoxSize;
 	const body = new CANNON.Body({ mass, shape });
@@ -63,137 +158,58 @@ const generateBox = (x, y, z, width, depth, falls) => {
 		width,
 		depth,
 	};
-};
+}
 
-const cutBox = (topLayer, overlap, size, delta) => {
+function cutBox(topLayer, overlap, size, delta) {
 	const direction = topLayer.direction;
 	const newWidth = direction == "x" ? overlap : topLayer.width;
 	const newDepth = direction == "z" ? overlap : topLayer.depth;
 
 	topLayer.width = newWidth;
-	topLayer.height = newDepth;
+	topLayer.depth = newDepth;
 
-	// Update THREE.js Metadata
+	// Update ThreeJS model
 	topLayer.threejs.scale[direction] = overlap / size;
 	topLayer.threejs.position[direction] -= delta / 2;
 
-	// Update CANNON.js Metadata
+	// Update CannonJS model
 	topLayer.cannonjs.position[direction] -= delta / 2;
 
-	// Replace shape as required by CANNON
+	// Update Cannon.js differently
 	const shape = new CANNON.Box(
 		new CANNON.Vec3(newWidth / 2, boxHeight / 2, newDepth / 2)
 	);
 	topLayer.cannonjs.shapes = [];
 	topLayer.cannonjs.addShape(shape);
-};
+}
 
-const start = () => {
-	autopilot = false;
-	gameEnded = false;
-	lastTime = 0;
-	pile = [];
-	overhangs = [];
-
-	if (instructionElement) instructionElement.style.display = "none";
-	if (resultsElement) resultsElement.style.display = "none";
-	if (scoreElement) scoreElement.innerText = 0;
-
-	if (world) {
-		// Remove all objects from world
-		while (world.bodies.length > 0) {
-			world.remove(world.bodies[0]);
-		}
+window.addEventListener("mousedown", eventHandler);
+window.addEventListener("touchstart", eventHandler);
+window.addEventListener("keydown", function (event) {
+	if (event.key == " ") {
+		event.preventDefault();
+		eventHandler();
+		return;
 	}
-
-	if (scene) {
-		// Remove All Mesh from Scene
-		while (scene.children.find((c) => c.type == "mesh")) {
-			const mesh = scene.children.find((c) => c.type == "Mesh");
-			scene.remove(mesh);
-		}
+	if (event.key == "R" || event.key == "r") {
+		event.preventDefault();
+		start();
+		return;
 	}
+});
 
-	// Foundational Layer
-	addLayer(0, 0, originalBoxSize, originalBoxSize);
+function eventHandler() {
+	if (autopilot) start();
+	else CoreGameLoop();
+}
 
-	// First Layer
-	addLayer(-10, 0, originalBoxSize, originalBoxSize, "x");
-
-	if (camera) {
-		// Reset Camera positions
-		camera.position.set(4, 4, 4);
-		camera.lookAt(0, 0, 0);
-	}
-};
-
-const update = (time) => {
-	if (lastTime) {
-		const timePassed = time - lastTime;
-		const speed = 0.008;
-
-		const topLayer = pile[pile.length - 1];
-		const previousLayer = pile[pile.length - 2];
-
-		// IMPORTANT MECHANIC HERE
-		const boxShouldMove =
-			!gameEnded &&
-			(!autopilot ||
-				(autopilot &&
-					topLayer.threejs.position[topLayer.direction] <
-						previousLayer.threejs.position[topLayer.direction] +
-							robotPrecision));
-
-		if (boxShouldMove) {
-			topLayer.threejs.position[topLayer.direction] += speed * timePassed;
-			topLayer.cannonjs.position[topLayer.direction] +=
-				speed * timePassed;
-
-			// If the box falls beyond the screen then it should fall
-			if (topLayer.threejs.position[topLayer.direction] > 10) {
-				miss();
-			}
-		} else {
-			if (autopilot) {
-				CoreGameLoop();
-				setRobotPrecision();
-			}
-		}
-
-		if (camera.position.y < boxHeight * (pile.length - 2) + 4) {
-			camera.position.y += speed * timePassed;
-		}
-
-		updatePhysics(timePassed);
-		renderer.render(scene, camera);
-	}
-	lastTime = time;
-};
-
-const miss = () => {
-	const topLayer = pile[pile.length - 1];
-
-	// Turn the top player into an overhang and let it fall!
-	addOverhang(
-		topLayer.threejs.position.x,
-		topLayer.threejs.position.z,
-		topLayer.width,
-		topLayer.depth
-	);
-
-	world.remove(topLayer.cannonjs);
-	world.remove(topLayer.threejs);
-
-	gameEnded = true;
-	if (resultsElement && !autopilot) resultsElement.style.display = "flex";
-};
-
-const CoreGameLoop = () => {
+function CoreGameLoop() {
 	if (gameEnded) return;
 
-	const topLayer = pile[pile.length - 1];
-	const previousLayer = pile[pile.length - 2];
+	const topLayer = stack[stack.length - 1];
+	const previousLayer = stack[stack.length - 2];
 	const direction = topLayer.direction;
+
 	const size = direction == "x" ? topLayer.width : topLayer.depth;
 	const delta =
 		topLayer.threejs.position[direction] -
@@ -220,118 +236,102 @@ const CoreGameLoop = () => {
 
 		addOverhang(overhangX, overhangZ, overhangWidth, overhangDepth);
 
-		// Next Layer
+		// Next layer
 		const nextX = direction == "x" ? topLayer.threejs.position.x : -10;
 		const nextZ = direction == "z" ? topLayer.threejs.position.z : -10;
-		const newWidth = topLayer.width;
-		const newDepth = topLayer.depth;
+		const newWidth = topLayer.width; // New layer has the same size as the cut top layer
+		const newDepth = topLayer.depth; // New layer has the same size as the cut top layer
 		const nextDirection = direction == "x" ? "z" : "x";
 
-		if (scoreElement) scoreElement.innerText = pile.length - 1;
+		if (scoreElement) scoreElement.innerText = stack.length - 1;
 		addLayer(nextX, nextZ, newWidth, newDepth, nextDirection);
 	} else {
 		miss();
 	}
-};
+}
 
-const eventHandler = () => {
-	if (autopilot) start();
-	else CoreGameLoop();
-};
+function miss() {
+	const topLayer = stack[stack.length - 1];
 
-window.addEventListener("mousedown", eventHandler);
-window.addEventListener("touchstart", eventHandler);
-window.addEventListener("keydown", (e) => {
-	if (e.key == " ") {
-		e.preventDefault();
-		eventHandler();
-		return;
+	// Turn to top layer into an overhang and let it fall down
+	addOverhang(
+		topLayer.threejs.position.x,
+		topLayer.threejs.position.z,
+		topLayer.width,
+		topLayer.depth
+	);
+	world.remove(topLayer.cannonjs);
+	scene.remove(topLayer.threejs);
+
+	gameEnded = true;
+	if (resultsElement && !autopilot) resultsElement.style.display = "flex";
+}
+
+function update(time) {
+	if (lastTime) {
+		const timePassed = time - lastTime;
+		const speed = 0.008;
+
+		const topLayer = stack[stack.length - 1];
+		const previousLayer = stack[stack.length - 2];
+
+		const boxShouldMove =
+			!gameEnded &&
+			(!autopilot ||
+				(autopilot &&
+					topLayer.threejs.position[topLayer.direction] <
+						previousLayer.threejs.position[topLayer.direction] +
+							robotPrecision));
+
+		if (boxShouldMove) {
+			topLayer.threejs.position[topLayer.direction] += speed * timePassed;
+			topLayer.cannonjs.position[topLayer.direction] +=
+				speed * timePassed;
+
+			// If the box went beyond the stack then show up the fail screen
+			if (topLayer.threejs.position[topLayer.direction] > 10) {
+				miss();
+			}
+		} else {
+			// If it shouldn't move then is it because the autopilot reached the correct position?
+			// Because if so then next level is coming
+			if (autopilot) {
+				CoreGameLoop();
+				setRobotPrecision();
+			}
+		}
+
+		// 4 is the initial camera height
+		if (camera.position.y < boxHeight * (stack.length - 2) + 4) {
+			camera.position.y += speed * timePassed;
+		}
+
+		updatePhysics(timePassed);
+		renderer.render(scene, camera);
 	}
-	if (e.key == "R" || e.key == "r") {
-		e.preventDefault();
-		start();
-		return;
-	}
-});
+	lastTime = time;
+}
 
-// Update is called 60fps etc
-
-const updatePhysics = (timePassed) => {
+function updatePhysics(timePassed) {
 	world.step(timePassed / 1000);
 
 	overhangs.forEach((element) => {
 		element.threejs.position.copy(element.cannonjs.position);
 		element.threejs.quaternion.copy(element.cannonjs.quaternion);
 	});
-};
-
-const awake = () => {
-	autopilot = true;
-	gameEnded = false;
-	lastTime = 0;
-	pile = [];
-	overhangs = [];
-	setRobotPrecision();
-
-	// Initialize Cannon.js
-	world = new CANNON.World();
-	world.gravity.set(0, -10, 0);
-	world.broadphase = new CANNON.NaiveBroadphase();
-	world.solver.iterations = 40;
-
-	// Initialize Three.js
-	const aspectRatio = window.innerWidth / window.innerHeight;
-	const width = 10;
-	const height = width / aspectRatio;
-
-	// Orthogonal Camera
-	camera = new THREE.OrthographicCamera(
-		width / -2,
-		width / 2,
-		height / 2,
-		height / -2,
-		0,
-		100
-	);
-
-	camera.position.set(4, 4, 4);
-	camera.lookAt(0, 0, 0);
-
-	// Scene
-	scene = new THREE.Scene();
-
-	// Foundational Layer
-	addLayer(0, 0, originalBoxSize, originalBoxSize);
-
-	// First Layer
-	addLayer(-10, 0, originalBoxSize, originalBoxSize, "x");
-
-	// Lighting
-	const ambientLight = new THREE.AmbientLight(0xffffff, 2.5);
-	scene.add(ambientLight);
-
-	const dirLight = new THREE.DirectionalLight(0xffffff, 2.5);
-	dirLight.position.set(10, 20, 0);
-	scene.add(dirLight);
-
-	// Set Up Renderer
-	renderer = new THREE.WebGLRenderer({ antialias: true });
-	renderer.setSize(window.innerWidth, window.innerHeight);
-	renderer.setAnimationLoop(update);
-	document.body.appendChild(renderer.domElement);
-};
+}
 
 window.addEventListener("resize", () => {
-	const aspectRatio = window.innerWidth / window.innerHeight;
+	// Adjust camera
+	console.log("resize", window.innerWidth, window.innerHeight);
+	const aspect = window.innerWidth / window.innerHeight;
 	const width = 10;
-	const height = width / aspectRatio;
+	const height = width / aspect;
 
 	camera.top = height / 2;
 	camera.bottom = height / -2;
 
-	// Reset Renderer
+	// Reset renderer
 	renderer.setSize(window.innerWidth, window.innerHeight);
 	renderer.render(scene, camera);
 });
-
-awake();

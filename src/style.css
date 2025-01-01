@@ -5,10 +5,6 @@ body {
 	cursor: pointer;
 }
 
-#instructions {
-	display: none;
-}
-
 #results,
 body:hover #instructions {
 	position: absolute;
