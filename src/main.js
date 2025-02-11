@@ -27,6 +27,18 @@ function setRobotPrecision() {
 	robotPrecision = Math.random() * 1 - 0.5;
 }
 
+function getBlockColor(index) {
+	return new THREE.Color(`hsl(${30 + index * 4}, 100%, 50%)`);
+}
+
+function getWashedColor(color) {
+	const washedOut = color.clone();
+	// Convert to HSL to reduce saturation and increase lightness
+	const hsl = {};
+	washedOut.getHSL(hsl);
+	return washedOut.setHSL(hsl.h, hsl.s * 0.8, Math.min(hsl.l * 1.2, 0.95));
+}
+
 function updateCameraAspect() {
 	const aspect = window.innerWidth / window.innerHeight;
 
@@ -93,7 +105,7 @@ function awake() {
 	);
 
 	// Adjust camera position based on screen size
-	const cameraDistance = window.innerWidth < 768 ? 12 : 4;
+	const cameraDistance = window.innerWidth < 768 ? 15 : 6;
 	camera.position.set(cameraDistance, cameraDistance, cameraDistance);
 	camera.lookAt(0, 0, 0);
 
@@ -170,11 +182,18 @@ function addOverhang(x, z, width, depth) {
 function generateBox(x, y, z, width, depth, falls) {
 	// ThreeJS
 	const geometry = new THREE.BoxGeometry(width, boxHeight, depth);
-	const color = new THREE.Color(`hsl(${30 + stack.length * 4}, 100%, 50%)`);
+	const color = getBlockColor(stack.length - 1);
 	const material = new THREE.MeshLambertMaterial({ color });
 	const mesh = new THREE.Mesh(geometry, material);
 	mesh.position.set(x, y, z);
 	scene.add(mesh);
+
+	// Update scene background with washed out version of the current block color
+	if (!falls) {
+		// Only update for new blocks, not overhangs
+		const bgColor = getWashedColor(color);
+		scene.background = bgColor;
+	}
 
 	// CannonJS
 	const shape = new CANNON.Box(
