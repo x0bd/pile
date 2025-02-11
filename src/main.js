@@ -27,6 +27,41 @@ function setRobotPrecision() {
 	robotPrecision = Math.random() * 1 - 0.5;
 }
 
+function updateCameraAspect() {
+	const aspect = window.innerWidth / window.innerHeight;
+
+	// Base width that looks good on desktop
+	let width = 10;
+
+	// Adjust width for mobile screens
+	if (window.innerWidth < 768) {
+		width = 6.5; // Increase base width on mobile for better visibility
+	}
+
+	const height = width / aspect;
+
+	camera.left = width / -2;
+	camera.right = width / 2;
+	camera.top = height / 2;
+	camera.bottom = height / -2;
+	camera.updateProjectionMatrix();
+}
+
+function setupRenderer() {
+	renderer = new THREE.WebGLRenderer({ antialias: true });
+	renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2)); // Limit pixel ratio for better performance
+	renderer.setSize(window.innerWidth, window.innerHeight);
+	renderer.setAnimationLoop(update);
+	document.body.appendChild(renderer.domElement);
+
+	window.addEventListener("resize", onWindowResize);
+}
+
+function onWindowResize() {
+	renderer.setSize(window.innerWidth, window.innerHeight);
+	updateCameraAspect();
+}
+
 function awake() {
 	autopilot = true;
 	gameEnded = false;
@@ -43,7 +78,8 @@ function awake() {
 
 	// Initialize ThreeJs
 	const aspect = window.innerWidth / window.innerHeight;
-	const width = 10;
+	// NB Make it mobile responsive
+	const width = window.innerWidth < 768 ? 60 : 10;
 	const height = width / aspect;
 
 	// Orthogonal Camera Yay!!!
@@ -56,7 +92,9 @@ function awake() {
 		100
 	);
 
-	camera.position.set(4, 4, 4);
+	// Adjust camera position based on screen size
+	const cameraDistance = window.innerWidth < 768 ? 12 : 4;
+	camera.position.set(cameraDistance, cameraDistance, cameraDistance);
 	camera.lookAt(0, 0, 0);
 
 	scene = new THREE.Scene();
@@ -76,10 +114,7 @@ function awake() {
 	scene.add(dirLight);
 
 	// Set up renderer
-	renderer = new THREE.WebGLRenderer({ antialias: true });
-	renderer.setSize(window.innerWidth, window.innerHeight);
-	renderer.setAnimationLoop(update);
-	document.body.appendChild(renderer.domElement);
+	setupRenderer();
 }
 
 function start() {
@@ -322,16 +357,17 @@ function updatePhysics(timePassed) {
 }
 
 window.addEventListener("resize", () => {
-	// Adjust camera
-	console.log("resize", window.innerWidth, window.innerHeight);
-	const aspect = window.innerWidth / window.innerHeight;
-	const width = 10;
-	const height = width / aspect;
-
-	camera.top = height / 2;
-	camera.bottom = height / -2;
-
-	// Reset renderer
+	updateCameraAspect();
 	renderer.setSize(window.innerWidth, window.innerHeight);
 	renderer.render(scene, camera);
+});
+
+// Make sure device orientation changes are handled properly
+window.addEventListener("orientationchange", () => {
+	// Small delay to ensure new dimensions are available
+	setTimeout(() => {
+		updateCameraAspect();
+		renderer.setSize(window.innerWidth, window.innerHeight);
+		renderer.render(scene, camera);
+	}, 100);
 });
