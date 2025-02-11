@@ -1,12 +1,21 @@
+@import url("https://fonts.googleapis.com/css2?family=Nabla&family=Pixelify+Sans:wght@400..700&display=swap");
+
 body {
 	margin: 0;
 	color: white;
 	font-family: "Geist Mono", "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
 	cursor: pointer;
+	font-family: "Pixelify Sans", serif;
+	font-optical-sizing: auto;
+	font-weight: 500;
+	font-style: normal;
+	font-size: 28px;
+	text-align: center;
 }
 
 #results,
-body:hover #instructions {
+body,
+#instructions {
 	position: absolute;
 	display: flex;
 	align-items: center;
@@ -14,6 +23,15 @@ body:hover #instructions {
 	height: 100%;
 	width: 100%;
 	background-color: rgba(20, 20, 20, 0.75);
+}
+
+.nabla-h1 {
+	font-family: "Nabla", serif;
+	font-optical-sizing: auto;
+	font-size: 92px;
+	font-weight: 400;
+	font-style: normal;
+	font-variation-settings: "EDPT" 100, "EHLT" 12;
 }
 
 a:visited {
