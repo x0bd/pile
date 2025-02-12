@@ -1,43 +1,143 @@
 @import url("https://fonts.googleapis.com/css2?family=Nabla&family=Pixelify+Sans:wght@400..700&display=swap");
 
+/* Base Styles */
 body {
 	margin: 0;
 	color: white;
-	font-family: "Geist Mono", "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+	font-family: "Pixelify Sans", sans-serif;
 	cursor: pointer;
-	font-family: "Pixelify Sans", serif;
 	font-optical-sizing: auto;
 	font-weight: 500;
 	font-style: normal;
 	font-size: 28px;
 	text-align: center;
+	overflow: hidden;
+	touch-action: none;
 }
 
+/* UI Overlays */
 #results,
-body,
 #instructions {
-	position: absolute;
+	position: fixed;
 	display: flex;
 	align-items: center;
 	justify-content: center;
 	height: 100%;
 	width: 100%;
 	background-color: rgba(20, 20, 20, 0.75);
+	backdrop-filter: blur(8px);
+	z-index: 50;
 }
 
+/* Title Styles */
 .nabla-h1 {
 	font-family: "Nabla", serif;
 	font-optical-sizing: auto;
-	font-size: 92px;
+	font-size: 72px;
 	font-weight: 400;
 	font-style: normal;
 	font-variation-settings: "EDPT" 100, "EHLT" 12;
+	margin: 0;
+	padding: 0;
 }
 
-a:visited {
-	color: inherit;
+/* Game Over Screen */
+#results h2 {
+	font-size: 2em;
+	margin: 0 0 0.5em 0;
+	color: #ff4747;
 }
 
+.button-icon {
+	margin-right: 8px;
+}
+
+/* Score Display */
+#score {
+	position: fixed;
+	color: #fff;
+	font-size: 3em;
+	font-weight: bold;
+	top: 20px;
+	right: 20px;
+	text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+	z-index: 40;
+}
+
+/* Game Controls */
+.game-controls {
+	position: fixed;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	padding: 1rem;
+	z-index: 40;
+}
+
+.control-container {
+	max-width: 500px;
+	margin: 0 auto;
+	background-color: rgba(0, 0, 0, 0.5);
+	backdrop-filter: blur(8px);
+	border-radius: 1rem;
+	padding: 1rem;
+}
+
+/* Buttons */
+.primary-button {
+	width: 100%;
+	padding: 1rem;
+	background-color: rgba(255, 255, 255, 0.1);
+	border: none;
+	border-radius: 0.5rem;
+	color: white;
+	font-family: inherit;
+	font-size: 1.2rem;
+	font-weight: bold;
+	cursor: pointer;
+	transition: background-color 0.2s;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.primary-button:hover {
+	background-color: rgba(255, 255, 255, 0.2);
+}
+
+.primary-button:active {
+	background-color: rgba(255, 255, 255, 0.3);
+}
+
+.secondary-controls {
+	display: flex;
+	justify-content: center;
+	gap: 1rem;
+	margin-top: 1rem;
+}
+
+.secondary-button {
+	padding: 0.75rem;
+	background-color: rgba(255, 255, 255, 0.1);
+	border: none;
+	border-radius: 0.5rem;
+	color: white;
+	cursor: pointer;
+	transition: background-color 0.2s;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.secondary-button:hover {
+	background-color: rgba(255, 255, 255, 0.2);
+}
+
+.secondary-button:active {
+	background-color: rgba(255, 255, 255, 0.3);
+}
+
+/* Modal Content */
 #results {
 	display: none;
 	cursor: default;
@@ -46,15 +146,80 @@ a:visited {
 #results .content,
 #instructions .content {
 	max-width: 300px;
-	padding: 50px;
+	padding: 2rem;
 	border-radius: 20px;
+	background-color: rgba(0, 0, 0, 0.75);
 }
 
-#score {
-	position: absolute;
-	color: #fff;
-	font-size: 3em;
-	font-weight: bold;
-	top: 30px;
-	right: 30px;
+/* Mobile Optimizations */
+@media (max-width: 768px) {
+	#score {
+		font-size: 2.5em;
+		top: 15px;
+		right: 15px;
+	}
+
+	.nabla-h1 {
+		font-size: 48px;
+	}
+
+	#results .content,
+	#instructions .content {
+		max-width: 280px;
+		padding: 1.5rem;
+	}
+
+	.control-container {
+		padding: 0.75rem;
+	}
+
+	.primary-button {
+		padding: 0.75rem;
+		font-size: 1rem;
+	}
+
+	.secondary-button {
+		padding: 0.5rem;
+	}
+
+	.secondary-button svg {
+		width: 20px;
+		height: 20px;
+	}
+}
+
+/* Add these to your existing CSS */
+.game-canvas {
+	position: fixed;
+	top: 0;
+	left: 0;
+	z-index: 1;
+	touch-action: none;
+}
+
+.game-controls {
+	position: fixed;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	padding: 1rem;
+	z-index: 2;
+	pointer-events: none; /* Make container transparent to events */
+}
+
+.control-container {
+	pointer-events: auto; /* Re-enable events for buttons */
+}
+
+.primary-button,
+.secondary-button {
+	pointer-events: auto; /* Re-enable events for buttons */
+	user-select: none;
+	-webkit-user-select: none;
+	-webkit-tap-highlight-color: transparent;
+}
+
+#results,
+#instructions {
+	z-index: 3; /* Ensure modals are above everything */
 }

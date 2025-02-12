@@ -1,4 +1,5 @@
 -   [ ] Add SFX
--   [ ] Add better UI With Buttons
+-   [x] Add better UI With Buttons
 -   [ ] Launch
 -   [ ] Various UI Improvements
+-   [ ] Fix Game State Bug

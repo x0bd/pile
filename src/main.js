@@ -15,6 +15,8 @@ const originalBoxSize = 3;
 let autopilot;
 let gameEnded;
 let robotPrecision; // Determines how precise the game is on autopilot
+let canvas;
+let isPlaying = false;
 
 const scoreElement = document.getElementById("score");
 const instructionsElement = document.getElementById("instructions");
@@ -64,7 +66,11 @@ function setupRenderer() {
 	renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2)); // Limit pixel ratio for better performance
 	renderer.setSize(window.innerWidth, window.innerHeight);
 	renderer.setAnimationLoop(update);
-	document.body.appendChild(renderer.domElement);
+
+	// Store canvas reference and add specific class
+	canvas = renderer.domElement;
+	canvas.classList.add("game-canvas");
+	document.body.appendChild(canvas);
 
 	window.addEventListener("resize", onWindowResize);
 }
@@ -77,10 +83,15 @@ function onWindowResize() {
 function awake() {
 	autopilot = true;
 	gameEnded = false;
+	isPlaying = false;
 	lastTime = 0;
 	stack = [];
 	overhangs = [];
 	setRobotPrecision();
+
+	if (instructionsElement) instructionsElement.style.display = "none";
+	if (resultsElement) resultsElement.style.display = "none";
+	if (scoreElement) scoreElement.innerText = 0;
 
 	// Initialize CannonJS
 	world = new CANNON.World();
@@ -91,7 +102,7 @@ function awake() {
 	// Initialize ThreeJs
 	const aspect = window.innerWidth / window.innerHeight;
 	// NB Make it mobile responsive
-	const width = window.innerWidth < 768 ? 60 : 10;
+	const width = window.innerWidth < 768 ? 4.25 : 10;
 	const height = width / aspect;
 
 	// Orthogonal Camera Yay!!!
@@ -237,24 +248,34 @@ function cutBox(topLayer, overlap, size, delta) {
 	topLayer.cannonjs.addShape(shape);
 }
 
-window.addEventListener("mousedown", eventHandler);
-window.addEventListener("touchstart", eventHandler);
-window.addEventListener("keydown", function (event) {
-	if (event.key == " ") {
-		event.preventDefault();
-		eventHandler();
-		return;
-	}
-	if (event.key == "R" || event.key == "r") {
-		event.preventDefault();
-		start();
-		return;
-	}
-});
+function removeEventListeners() {
+	window.removeEventListener("mousedown", eventHandler);
+	window.removeEventListener("touchstart", eventHandler);
+	canvas.removeEventListener("mousedown", eventHandler);
+	canvas.removeEventListener("touchstart", eventHandler);
+}
 
-function eventHandler() {
-	if (autopilot) start();
-	else CoreGameLoop();
+function addEventListeners() {
+	removeEventListeners();
+	canvas.addEventListener("mousedown", eventHandler);
+	canvas.addEventListener("touchstart", eventHandler);
+}
+
+function eventHandler(event) {
+	// Prevent default behavior
+	event.preventDefault();
+
+	// Only handle events from canvas or when autopilot is true
+	if (!event.target.classList.contains("game-canvas") && !autopilot) {
+		return;
+	}
+
+	if (autopilot) {
+		start();
+		addEventListeners();
+	} else if (isPlaying && !gameEnded) {
+		CoreGameLoop();
+	}
 }
 
 function CoreGameLoop() {
@@ -318,6 +339,7 @@ function miss() {
 	scene.remove(topLayer.threejs);
 
 	gameEnded = true;
+	isPlaying = true;
 	if (resultsElement && !autopilot) resultsElement.style.display = "flex";
 }
 
@@ -389,4 +411,67 @@ window.addEventListener("orientationchange", () => {
 		renderer.setSize(window.innerWidth, window.innerHeight);
 		renderer.render(scene, camera);
 	}, 100);
+});
+
+// Add event listeners for the new UI controls
+document.addEventListener("DOMContentLoaded", function () {
+	const placeBlockBtn = document.getElementById("placeBlock");
+	const resetGameBtn = document.getElementById("resetGame");
+	const toggleAutopilotBtn = document.getElementById("toggleAutopilot");
+	const replayButton = document.getElementById("replayButton");
+
+	// Place Block Button
+	placeBlockBtn.addEventListener("click", function (e) {
+		e.preventDefault();
+		if (isPlaying && !gameEnded) {
+			CoreGameLoop();
+		}
+	});
+
+	// Reset Game Button
+	resetGameBtn.addEventListener("click", function (e) {
+		e.preventDefault();
+		start();
+		addEventListeners();
+	});
+
+	// Toggle Autopilot Button
+	toggleAutopilotBtn.addEventListener("click", function (e) {
+		e.preventDefault();
+		autopilot = !autopilot;
+		if (autopilot) {
+			start();
+			removeEventListeners();
+		} else {
+			start();
+			addEventListeners();
+		}
+	});
+
+	// Replay Button (Game Over Screen)
+	replayButton.addEventListener("click", function (e) {
+		e.preventDefault();
+		start();
+		addEventListeners();
+	});
+
+	// Add keyboard controls
+	window.addEventListener("keydown", function (event) {
+		if (event.key == " ") {
+			event.preventDefault();
+			if (autopilot) {
+				start();
+				addEventListeners();
+			} else if (isPlaying && !gameEnded) {
+				CoreGameLoop();
+			}
+			return;
+		}
+		if (event.key == "R" || event.key == "r") {
+			event.preventDefault();
+			start();
+			addEventListeners();
+			return;
+		}
+	});
 });
