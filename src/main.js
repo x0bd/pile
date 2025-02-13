@@ -89,7 +89,7 @@ function awake() {
 	overhangs = [];
 	setRobotPrecision();
 
-	if (instructionsElement) instructionsElement.style.display = "none";
+	if (instructionsElement) instructionsElement.style.display = "flex";
 	if (resultsElement) resultsElement.style.display = "none";
 	if (scoreElement) scoreElement.innerText = 0;
 
@@ -102,7 +102,7 @@ function awake() {
 	// Initialize ThreeJs
 	const aspect = window.innerWidth / window.innerHeight;
 	// NB Make it mobile responsive
-	const width = window.innerWidth < 768 ? 4.25 : 10;
+	const width = window.innerWidth < 768 ? 5 : 10;
 	const height = width / aspect;
 
 	// Orthogonal Camera Yay!!!
@@ -138,11 +138,13 @@ function awake() {
 
 	// Set up renderer
 	setupRenderer();
+	addEventListeners();
 }
 
 function start() {
 	autopilot = false;
 	gameEnded = false;
+	isPlaying = true;
 	lastTime = 0;
 	stack = [];
 	overhangs = [];
@@ -175,6 +177,9 @@ function start() {
 		camera.position.set(4, 4, 4);
 		camera.lookAt(0, 0, 0);
 	}
+
+	removeEventListeners();
+	addEventListeners();
 }
 
 function addLayer(x, z, width, depth, direction) {
@@ -257,15 +262,36 @@ function removeEventListeners() {
 
 function addEventListeners() {
 	removeEventListeners();
+
+	// Canvas Event Listeners
 	canvas.addEventListener("mousedown", eventHandler);
 	canvas.addEventListener("touchstart", eventHandler);
+
+	// Add keyboard event listeners
+	window.addEventListener("keydown", handleKeyDown);
+}
+
+function handleKeyDown(event) {
+	if (event.key === " " || event.key === "Spacebar") {
+		event.preventDefault();
+
+		if (autopilot) {
+			start();
+		} else if (isPlaying && !gameEnded) {
+			CoreGameLoop();
+		}
+	}
+
+	if (event.key === "R" || event.key === "r") {
+		event.preventDefault();
+		start();
+	}
 }
 
 function eventHandler(event) {
-	// Prevent default behavior
 	event.preventDefault();
 
-	// Only handle events from canvas or when autopilot is true
+	// Only handle events from canvas or when in autopilot
 	if (!event.target.classList.contains("game-canvas") && !autopilot) {
 		return;
 	}
@@ -273,7 +299,9 @@ function eventHandler(event) {
 	if (autopilot) {
 		start();
 		addEventListeners();
-	} else if (isPlaying && !gameEnded) {
+	}
+
+	if (isPlaying && !gameEnded) {
 		CoreGameLoop();
 	}
 }
@@ -420,58 +448,28 @@ document.addEventListener("DOMContentLoaded", function () {
 	const toggleAutopilotBtn = document.getElementById("toggleAutopilot");
 	const replayButton = document.getElementById("replayButton");
 
-	// Place Block Button
 	placeBlockBtn.addEventListener("click", function (e) {
 		e.preventDefault();
-		if (isPlaying && !gameEnded) {
+		if (autopilot) {
+			start();
+		} else if (isPlaying && !gameEnded) {
 			CoreGameLoop();
 		}
 	});
 
-	// Reset Game Button
 	resetGameBtn.addEventListener("click", function (e) {
 		e.preventDefault();
 		start();
-		addEventListeners();
 	});
 
-	// Toggle Autopilot Button
 	toggleAutopilotBtn.addEventListener("click", function (e) {
 		e.preventDefault();
 		autopilot = !autopilot;
-		if (autopilot) {
-			start();
-			removeEventListeners();
-		} else {
-			start();
-			addEventListeners();
-		}
+		start();
 	});
 
-	// Replay Button (Game Over Screen)
 	replayButton.addEventListener("click", function (e) {
 		e.preventDefault();
 		start();
-		addEventListeners();
-	});
-
-	// Add keyboard controls
-	window.addEventListener("keydown", function (event) {
-		if (event.key == " ") {
-			event.preventDefault();
-			if (autopilot) {
-				start();
-				addEventListeners();
-			} else if (isPlaying && !gameEnded) {
-				CoreGameLoop();
-			}
-			return;
-		}
-		if (event.key == "R" || event.key == "r") {
-			event.preventDefault();
-			start();
-			addEventListeners();
-			return;
-		}
 	});
 });
