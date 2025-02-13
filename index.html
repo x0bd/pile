@@ -4,75 +4,16 @@
 		<meta charset="UTF-8" />
 		<link rel="icon" type="image/svg+xml" href="/vite.svg" />
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-		<title>Pile -A Stack Clone</title>
+		<title>Pile - A Stack Clone</title>
 		<link rel="stylesheet" href="src/style.css" />
 	</head>
 	<body>
-		<div id="instructions">
+		<!-- Main Menu -->
+		<div id="main-menu">
 			<div class="content">
 				<h1 class="nabla-h1">PILE</h1>
-				<p>Pile the blocks on top of each other</p>
-				<p>Click, tap or press space when a block is above the pile</p>
-				<p>Can you reach the blue color blocks</p>
-			</div>
-		</div>
-		<div id="results">
-			<div class="content">
-				<h2>Game Over!</h2>
-				<p>You missed the block</p>
-				<button id="replayButton" class="primary-button">
-					<svg
-						class="button-icon"
-						xmlns="http://www.w3.org/2000/svg"
-						width="24"
-						height="24"
-						viewBox="0 0 24 24"
-						fill="none"
-						stroke="currentColor"
-						stroke-width="2"
-						stroke-linecap="round"
-						stroke-linejoin="round"
-					>
-						<path
-							d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"
-						/>
-						<path d="M3 3v5h5" />
-					</svg>
-					Play Again
-				</button>
-			</div>
-		</div>
-		<div id="score">0</div>
-
-		<!-- Game Controls -->
-		<div class="game-controls">
-			<div class="control-container">
-				<!-- Main Action Button -->
-				<button id="placeBlock" class="primary-button">
-					TAP TO PLACE BLOCK
-				</button>
-
-				<!-- Secondary Controls -->
-				<div class="secondary-controls">
-					<button id="resetGame" class="secondary-button">
-						<svg
-							xmlns="http://www.w3.org/2000/svg"
-							width="24"
-							height="24"
-							viewBox="0 0 24 24"
-							fill="none"
-							stroke="currentColor"
-							stroke-width="2"
-							stroke-linecap="round"
-							stroke-linejoin="round"
-						>
-							<path
-								d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"
-							/>
-							<path d="M3 3v5h5" />
-						</svg>
-					</button>
-					<button id="toggleAutopilot" class="secondary-button">
+				<div class="button-grid">
+					<button id="startGame" class="menu-button">
 						<svg
 							xmlns="http://www.w3.org/2000/svg"
 							width="24"
@@ -86,11 +27,176 @@
 						>
 							<polygon points="5 3 19 12 5 21 5 3" />
 						</svg>
+						Start Game
 					</button>
+
+					<button id="showInstructions" class="menu-button">
+						<svg
+							xmlns="http://www.w3.org/2000/svg"
+							width="24"
+							height="24"
+							viewBox="0 0 24 24"
+							fill="none"
+							stroke="currentColor"
+							stroke-width="2"
+							stroke-linecap="round"
+							stroke-linejoin="round"
+						>
+							<circle cx="12" cy="12" r="10" />
+							<line x1="12" y1="16" x2="12" y2="12" />
+							<line x1="12" y1="8" x2="12.01" y2="8" />
+						</svg>
+						How to Play
+					</button>
+
+					<a
+						href="https://github.com/yourusername/pile-game"
+						target="_blank"
+						class="menu-button"
+					>
+						<svg
+							xmlns="http://www.w3.org/2000/svg"
+							width="24"
+							height="24"
+							viewBox="0 0 24 24"
+							fill="none"
+							stroke="currentColor"
+							stroke-width="2"
+							stroke-linecap="round"
+							stroke-linejoin="round"
+						>
+							<path
+								d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"
+							/>
+						</svg>
+						GitHub
+					</a>
+
+					<a
+						href="https://stackgame.com"
+						target="_blank"
+						class="menu-button"
+					>
+						<svg
+							xmlns="http://www.w3.org/2000/svg"
+							width="24"
+							height="24"
+							viewBox="0 0 24 24"
+							fill="none"
+							stroke="currentColor"
+							stroke-width="2"
+							stroke-linecap="round"
+							stroke-linejoin="round"
+						>
+							<path
+								d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"
+							/>
+							<polyline points="15 3 21 3 21 9" />
+							<line x1="10" y1="14" x2="21" y2="3" />
+						</svg>
+						Inspiration
+					</a>
 				</div>
 			</div>
 		</div>
 
-		<script type="module" src="/src/main.js"></script>
+		<!-- Instructions Modal -->
+		<div id="instructions" class="modal">
+			<div class="modal-content">
+				<h2>How to Play</h2>
+				<p>Pile the blocks on top of each other</p>
+				<p>Click, tap or press space when a block is above the pile</p>
+				<p>Can you reach the blue color blocks?</p>
+				<button id="closeInstructions" class="menu-button">
+					<svg
+						xmlns="http://www.w3.org/2000/svg"
+						width="24"
+						height="24"
+						viewBox="0 0 24 24"
+						fill="none"
+						stroke="currentColor"
+						stroke-width="2"
+						stroke-linecap="round"
+						stroke-linejoin="round"
+					>
+						<line x1="18" y1="6" x2="6" y2="18" />
+						<line x1="6" y1="6" x2="18" y2="18" />
+					</svg>
+					Close
+				</button>
+			</div>
+		</div>
+
+		<!-- Game UI -->
+		<div id="game-ui" style="display: none">
+			<div id="score">0</div>
+			<div class="game-controls">
+				<div class="control-container">
+					<button id="placeBlock" class="primary-button">
+						<svg
+							xmlns="http://www.w3.org/2000/svg"
+							width="24"
+							height="24"
+							viewBox="0 0 24 24"
+							fill="none"
+							stroke="currentColor"
+							stroke-width="2"
+							stroke-linecap="round"
+							stroke-linejoin="round"
+						>
+							<polygon points="5 3 19 12 5 21 5 3" />
+						</svg>
+						Place Block
+					</button>
+					<div class="secondary-controls">
+						<button id="resetGame" class="secondary-button">
+							<svg
+								xmlns="http://www.w3.org/2000/svg"
+								width="24"
+								height="24"
+								viewBox="0 0 24 24"
+								fill="none"
+								stroke="currentColor"
+								stroke-width="2"
+								stroke-linecap="round"
+								stroke-linejoin="round"
+							>
+								<path
+									d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"
+								/>
+								<path d="M3 3v5h5" />
+							</svg>
+						</button>
+						<button id="toggleAutopilot" class="secondary-button">
+							<svg
+								xmlns="http://www.w3.org/2000/svg"
+								width="24"
+								height="24"
+								viewBox="0 0 24 24"
+								fill="none"
+								stroke="currentColor"
+								stroke-width="2"
+								stroke-linecap="round"
+								stroke-linejoin="round"
+							>
+								<rect
+									x="5"
+									y="2"
+									width="14"
+									height="20"
+									rx="2"
+									ry="2"
+								/>
+								<line x1="12" y1="18" x2="12" y2="18" />
+							</svg>
+						</button>
+					</div>
+				</div>
+			</div>
+			<div id="results">
+				<!-- existing results content -->
+			</div>
+		</div>
 	</body>
+	<script type="module" src="/src/main.js"></script>
 </html>

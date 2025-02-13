@@ -448,28 +448,36 @@ document.addEventListener("DOMContentLoaded", function () {
 	const toggleAutopilotBtn = document.getElementById("toggleAutopilot");
 	const replayButton = document.getElementById("replayButton");
 
-	placeBlockBtn.addEventListener("click", function (e) {
-		e.preventDefault();
-		if (autopilot) {
+	if (placeBlockBtn) {
+		placeBlockBtn.addEventListener("click", function (e) {
+			e.preventDefault();
+			if (autopilot) {
+				start();
+			} else if (isPlaying && !gameEnded) {
+				CoreGameLoop();
+			}
+		});
+	}
+
+	if (resetGameBtn) {
+		resetGameBtn.addEventListener("click", function (e) {
+			e.preventDefault();
 			start();
-		} else if (isPlaying && !gameEnded) {
-			CoreGameLoop();
-		}
-	});
+		});
+	}
 
-	resetGameBtn.addEventListener("click", function (e) {
-		e.preventDefault();
-		start();
-	});
+	if (toggleAutopilotBtn) {
+		toggleAutopilotBtn.addEventListener("click", function (e) {
+			e.preventDefault();
+			autopilot = !autopilot;
+			start();
+		});
+	}
 
-	toggleAutopilotBtn.addEventListener("click", function (e) {
-		e.preventDefault();
-		autopilot = !autopilot;
-		start();
-	});
-
-	replayButton.addEventListener("click", function (e) {
-		e.preventDefault();
-		start();
-	});
+	if (replayButton) {
+		replayButton.addEventListener("click", function (e) {
+			e.preventDefault();
+			start();
+		});
+	}
 });
