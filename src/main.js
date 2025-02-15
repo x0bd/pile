@@ -148,6 +148,7 @@ function start() {
 	lastTime = 0;
 	stack = [];
 	overhangs = [];
+	setRobotPrecision();
 
 	if (instructionsElement) instructionsElement.style.display = "none";
 	if (resultsElement) resultsElement.style.display = "none";
@@ -444,9 +445,8 @@ window.addEventListener("orientationchange", () => {
 // Add event listeners for the new UI controls
 document.addEventListener("DOMContentLoaded", function () {
 	const placeBlockBtn = document.getElementById("placeBlock");
-	const resetGameBtn = document.getElementById("resetGame");
-	const toggleAutopilotBtn = document.getElementById("toggleAutopilot");
 	const replayButton = document.getElementById("replayButton");
+	const playButton = document.getElementById("startButton");
 
 	placeBlockBtn.addEventListener("click", function (e) {
 		e.preventDefault();
@@ -455,6 +455,11 @@ document.addEventListener("DOMContentLoaded", function () {
 		} else if (isPlaying && !gameEnded) {
 			CoreGameLoop();
 		}
+	});
+
+	playButton.addEventListener("click", function (e) {
+		e.preventDefault();
+		start();
 	});
 
 	resetGameBtn.addEventListener("click", function (e) {

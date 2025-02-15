@@ -223,3 +223,88 @@ body {
 #instructions {
 	z-index: 3; /* Ensure modals are above everything */
 }
+
+/* Basic modal styling */
+#instructions {
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	background-color: rgba(0, 0, 0, 0.5);
+	color: white;
+	font-family: "Arial", sans-serif;
+}
+
+#instructions .content {
+	text-align: center;
+	max-width: 600px;
+	margin: 20px;
+}
+
+.primary-button,
+.secondary-button {
+	padding: 10px 20px;
+	margin: 10px;
+	border: none;
+	border-radius: 5px;
+	cursor: pointer;
+	font-size: 16px;
+	text-align: center;
+}
+
+.primary-button {
+	background-color: #4caf50;
+	color: white;
+}
+
+.secondary-button {
+	background-color: #333;
+	color: white;
+	text-decoration: none;
+}
+
+/* Make sure the buttons look good */
+.primary-button:hover,
+.secondary-button:hover {
+	background-color: #45a049;
+}
+
+/* Score and results section */
+#results {
+	display: none;
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	color: white;
+}
+
+#score {
+	position: absolute;
+	top: 10px;
+	left: 10px;
+	font-size: 32px;
+}
+
+/* Game Controls Styling */
+.game-controls {
+	position: absolute;
+	bottom: 10px;
+	left: 10px;
+}
+
+.control-container {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+}
+
+.secondary-controls {
+	display: flex;
+	gap: 10px;
+}
