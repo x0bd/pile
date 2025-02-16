@@ -446,7 +446,7 @@ window.addEventListener("orientationchange", () => {
 document.addEventListener("DOMContentLoaded", function () {
 	const placeBlockBtn = document.getElementById("placeBlock");
 	const replayButton = document.getElementById("replayButton");
-	const playButton = document.getElementById("startButton");
+	const startButton = document.getElementById("startButton"); // Correctly target 'startButton'
 
 	placeBlockBtn.addEventListener("click", function (e) {
 		e.preventDefault();
@@ -457,19 +457,11 @@ document.addEventListener("DOMContentLoaded", function () {
 		}
 	});
 
-	playButton.addEventListener("click", function (e) {
-		e.preventDefault();
-		start();
-	});
+	placeBlockBtn.addEventListener("touchstart", function (e) {});
 
-	resetGameBtn.addEventListener("click", function (e) {
+	startButton.addEventListener("click", function (e) {
+		// Correctly target 'startButton'
 		e.preventDefault();
-		start();
-	});
-
-	toggleAutopilotBtn.addEventListener("click", function (e) {
-		e.preventDefault();
-		autopilot = !autopilot;
 		start();
 	});
 
