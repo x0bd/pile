@@ -444,20 +444,8 @@ window.addEventListener("orientationchange", () => {
 
 // Add event listeners for the new UI controls
 document.addEventListener("DOMContentLoaded", function () {
-	const placeBlockBtn = document.getElementById("placeBlock");
 	const replayButton = document.getElementById("replayButton");
 	const startButton = document.getElementById("startButton"); // Correctly target 'startButton'
-
-	placeBlockBtn.addEventListener("click", function (e) {
-		e.preventDefault();
-		if (autopilot) {
-			start();
-		} else if (isPlaying && !gameEnded) {
-			CoreGameLoop();
-		}
-	});
-
-	placeBlockBtn.addEventListener("touchstart", function (e) {});
 
 	startButton.addEventListener("click", function (e) {
 		// Correctly target 'startButton'

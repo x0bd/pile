@@ -11,10 +11,19 @@
 		<div id="instructions">
 			<div class="content">
 				<h1 class="nabla-h1">PILE</h1>
-				<p>Pile the blocks on top of each other</p>
-				<p>Click, tap or press space when a block is above the pile</p>
-				<p>Can you reach the blue color blocks</p>
-				<button id="startButton" class="primary-button">Play</button>
+				<div class="info">
+					<p>Pile the blocks on top of each other</p>
+					<p>
+						Click, tap or press space when a block is above the pile
+					</p>
+					<p>Can you reach the blue color blocks</p>
+				</div>
+				<div class="button-container">
+					<button id="startButton" class="primary-button">
+						Play
+					</button>
+					<button id="github" class="secondary-button">Github</button>
+				</div>
 			</div>
 		</div>
 		<div id="results">
@@ -29,14 +38,6 @@
 		<div id="score">0</div>
 
 		<!-- Game Controls -->
-		<div class="game-controls">
-			<div class="control-container">
-				<!-- Main Action Button -->
-				<button id="placeBlock" class="primary-button">
-					TAP TO PLACE BLOCK
-				</button>
-			</div>
-		</div>
 
 		<script type="module" src="/src/main.js"></script>
 	</body>
