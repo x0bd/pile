@@ -3,7 +3,7 @@
 /* Base Styles */
 body {
 	margin: 0;
-	color: white;
+	color: #e0def4;
 	font-family: "Pixelify Sans", sans-serif;
 	cursor: pointer;
 	font-optical-sizing: auto;
@@ -24,7 +24,7 @@ body {
 	justify-content: center;
 	height: 100%;
 	width: 100%;
-	background-color: rgba(20, 20, 20, 0.75);
+	background-color: rgba(28, 28, 28, 0.75);
 	backdrop-filter: blur(8px);
 	z-index: 50;
 }
@@ -55,11 +55,11 @@ body {
 /* Score Display */
 #score {
 	position: fixed;
-	color: #fff;
+	color: #e0def4;
 	font-size: 3em;
 	font-weight: bold;
-	top: 20px;
-	right: 20px;
+	top: 40px;
+	right: 40px;
 	text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
 	z-index: 40;
 }
@@ -90,29 +90,42 @@ body {
 	place-items: center;
 }
 
-/* Buttons */
-.primary-button {
-	padding: 1rem;
-	background-color: rgba(255, 255, 255, 0.1);
-	border: none;
-	border-radius: 0.5rem;
-	color: white;
-	font-family: inherit;
-	font-size: 1.2rem;
-	font-weight: bold;
+.primary-button,
+.secondary-button,
+#replay-button {
+	padding: 12px 16px; /* Slightly larger padding */
+	font-weight: 300;
+	font-size: 42px; /* Slightly larger font size */
+	text-decoration: none;
+	color: #e0def4;
+	background: #ea9d34; /* @btn - original button color */
+	margin: 10px;
+	text-align: center;
+	display: inline-block;
+	width: auto;
+	border-radius: 8px;
+	box-shadow: 0px 10px 1px 0px #cf8c2e, 0px 10px 10px 3px rgba(0, 0, 0, 0.4),
+		0px 8px 1px 4px rgba(255, 255, 255, 0.15);
+	border: 1px solid rgba(234, 158, 52, 0.511);
+	-webkit-transition: all 0.1s ease-in;
 	cursor: pointer;
-	transition: background-color 0.2s;
-	display: flex;
-	align-items: center;
-	justify-content: center;
+	font-family: "Pixelify Sans", sans-serif;
+	font-size: 1.3rem;
 }
 
-.primary-button:hover {
-	background-color: rgba(255, 255, 255, 0.2);
+.primary-button:active,
+.secondary-button:active,
+#replay-button:active {
+	margin-top: 17px;
+	box-shadow: 0px 4px 0px 0px #cf8c2e, 0px 8px 3px 0px rgba(0, 0, 0, 0.4),
+		0px 3px 0px 4px rgba(255, 255, 255, 0.15);
 }
 
-.primary-button:active {
-	background-color: rgba(255, 255, 255, 0.3);
+.primary-button:hover,
+.secondary-button:hover,
+#replay-button:hover {
+	background-color: #ea9d34;
+	opacity: 0.95;
 }
 
 .secondary-controls {
@@ -120,28 +133,6 @@ body {
 	justify-content: center;
 	gap: 1rem;
 	margin-top: 1rem;
-}
-
-.secondary-button {
-	padding: 0.75rem;
-	background-color: rgba(255, 255, 255, 0.1);
-	border: none;
-	border-radius: 0.5rem;
-	font-family: inherit;
-	color: white;
-	cursor: pointer;
-	transition: background-color 0.2s;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-}
-
-.secondary-button:hover {
-	background-color: rgba(255, 255, 255, 0.2);
-}
-
-.secondary-button:active {
-	background-color: rgba(255, 255, 255, 0.3);
 }
 
 /* Modal Content */
@@ -180,13 +171,11 @@ body {
 		padding: 0.75rem;
 	}
 
-	.primary-button {
-		padding: 0.75rem;
-		font-size: 1rem;
-	}
-
-	.secondary-button {
-		padding: 0.5rem;
+	.primary-button,
+	.secondary-button,
+	#replay-button {
+		padding: 10px 14px;
+		font-size: 1.1rem;
 	}
 
 	.secondary-button svg {
@@ -195,7 +184,6 @@ body {
 	}
 }
 
-/* Add these to your existing CSS */
 .game-canvas {
 	position: fixed;
 	top: 0;
@@ -211,16 +199,17 @@ body {
 	right: 0;
 	padding: 1rem;
 	z-index: 2;
-	pointer-events: none; /* Make container transparent to events */
+	pointer-events: none;
 }
 
 .control-container {
-	pointer-events: auto; /* Re-enable events for buttons */
+	pointer-events: auto;
 }
 
 .primary-button,
-.secondary-button {
-	pointer-events: auto; /* Re-enable events for buttons */
+.secondary-button,
+#replay-button {
+	pointer-events: auto;
 	user-select: none;
 	-webkit-user-select: none;
 	-webkit-tap-highlight-color: transparent;
@@ -228,7 +217,7 @@ body {
 
 #results,
 #instructions {
-	z-index: 3; /* Ensure modals are above everything */
+	z-index: 3;
 }
 
 #instructions {
@@ -242,7 +231,7 @@ body {
 	width: 100%;
 	height: 100%;
 	background-color: rgba(0, 0, 0, 0.5);
-	color: white;
+	color: #e0def4;
 }
 
 #instructions .content {
@@ -252,34 +241,6 @@ body {
 	display: flex;
 	flex-direction: column;
 	place-items: center;
-}
-
-.primary-button,
-.secondary-button {
-	padding: 10px 20px;
-	margin: 10px;
-	border: none;
-	border-radius: 5px;
-	cursor: pointer;
-	font-size: 32px;
-	text-align: center;
-}
-
-.primary-button {
-	background-color: #ffdd47;
-	color: white;
-}
-
-.secondary-button {
-	background-color: #333;
-	color: white;
-	text-decoration: none;
-}
-
-/* Make sure the buttons look good */
-.primary-button:hover,
-.secondary-button:hover {
-	background-color: #d8ce45;
 }
 
 /* Score and results section */
@@ -317,10 +278,13 @@ body {
 	gap: 10px;
 }
 
-#replay-button {
-	background-color: #ffdd47;
+/* Extra Button Styling */
+.secondary-button svg {
+	width: 48px;
+	height: 48px;
 }
 
-#replay-button:hover {
-	background-color: #d8ce45;
+.primary-button svg {
+	width: 48px;
+	height: 48px;
 }

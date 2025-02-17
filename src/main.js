@@ -102,7 +102,7 @@ function awake() {
 	// Initialize ThreeJs
 	const aspect = window.innerWidth / window.innerHeight;
 	// NB Make it mobile responsive
-	const width = window.innerWidth < 768 ? 5 : 10;
+	const width = window.innerWidth < 768 ? 4.5 : 10;
 	const height = width / aspect;
 
 	// Orthogonal Camera Yay!!!
