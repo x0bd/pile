@@ -445,7 +445,8 @@ window.addEventListener("orientationchange", () => {
 // Add event listeners for the new UI controls
 document.addEventListener("DOMContentLoaded", function () {
 	const replayButton = document.getElementById("replayButton");
-	const startButton = document.getElementById("startButton"); // Correctly target 'startButton'
+	const startButton = document.getElementById("startButton");
+	const githubButton = document.getElementById("github");
 
 	startButton.addEventListener("click", function (e) {
 		// Correctly target 'startButton'
@@ -456,5 +457,10 @@ document.addEventListener("DOMContentLoaded", function () {
 	replayButton.addEventListener("click", function (e) {
 		e.preventDefault();
 		start();
+	});
+
+	githubButton.addEventListener("click", function (e) {
+		e.preventDefault();
+		window.open("https://github.com/x0bd/pile", "_blank");
 	});
 });
