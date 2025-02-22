@@ -1,5 +1,4 @@
-// Uses Cannon.js and Three.js, these models MUST kept in sync
-
+// Sync these two
 import * as THREE from "three";
 import * as CANNON from "cannon";
 
@@ -122,6 +121,36 @@ function awake() {
 
 	scene = new THREE.Scene();
 
+	// Initialize AudioListener
+	const audioListener = new THREE.AudioListener();
+	camera.add(audioListener);
+
+	const audioLoader = new THREE.AudioLoader();
+
+	// **Load sound files and create Audio objects**
+	const impactSound = new THREE.Audio(audioListener);
+	const clickSound = new THREE.Audio(audioListener);
+	const errorSound = new THREE.Audio(audioListener);
+
+	setTimeout(() => {
+		audioLoader.load("impact.ogg", function (buffer) {
+			impactSound.setBuffer(buffer);
+		});
+
+		audioLoader.load("click.ogg", function (buffer) {
+			clickSound.setBuffer(buffer);
+		});
+
+		audioLoader.load("error.ogg", function (buffer) {
+			errorSound.setBuffer(buffer);
+		});
+	}, 50);
+
+	// Store sound objects in the global scope so we can  access them later
+	window.impactSound = impactSound;
+	window.clickSound = clickSound;
+	window.errorSound = errorSound;
+
 	// Foundational Layer
 	addLayer(0, 0, originalBoxSize, originalBoxSize);
 
@@ -181,6 +210,12 @@ function start() {
 
 	removeEventListeners();
 	addEventListeners();
+}
+
+function playSound(sound) {
+	if (sound && sound.buffer) {
+		sound.play();
+	}
 }
 
 function addLayer(x, z, width, depth, direction) {
@@ -291,6 +326,7 @@ function handleKeyDown(event) {
 
 function eventHandler(event) {
 	event.preventDefault();
+	playSound(window.clickSound);
 
 	// Only handle events from canvas or when in autopilot
 	if (!event.target.classList.contains("game-canvas") && !autopilot) {
@@ -348,6 +384,7 @@ function CoreGameLoop() {
 		const nextDirection = direction == "x" ? "z" : "x";
 
 		if (scoreElement) scoreElement.innerText = stack.length - 1;
+		playSound(window.impactSound);
 		addLayer(nextX, nextZ, newWidth, newDepth, nextDirection);
 	} else {
 		miss();
@@ -355,6 +392,7 @@ function CoreGameLoop() {
 }
 
 function miss() {
+	playSound(window.errorSound);
 	const topLayer = stack[stack.length - 1];
 
 	// Turn to top layer into an overhang and let it fall down
@@ -449,7 +487,6 @@ document.addEventListener("DOMContentLoaded", function () {
 	const githubButton = document.getElementById("github");
 
 	startButton.addEventListener("click", function (e) {
-		// Correctly target 'startButton'
 		e.preventDefault();
 		start();
 	});

@@ -1,6 +1,6 @@
--   [ ] Add SFX
+-   [ ] Fix SFX Bug
 -   [x] Add better UI With Buttons
 -   [ ] Launch
 -   [x] Various UI Improvements
 -   [x] Fix Game State Bug
--   [ ] Add Buttons On Title Screen and your Github Source Link
+-   [x] Add Buttons On Title Screen and Github Source Link
